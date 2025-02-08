@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pexeso</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="menu">
+        <h1>Hra Pexeso</h1>
+        <label for="playerName">Jméno hráče:</label>
+        <input type="text" id="playerName" placeholder="Zadejte své jméno">
+        <button id="startGameBtn">Začít hru</button>
+    </div>
+
+    <div id="game" class="hidden">
+        <div id="playerDisplay"></div>
+        <div id="score">Skóre: 0</div>
+        <div id="time">Čas: 0:00</div>
+        <div id="board"></div>
+        <button id="playAgainBtn" class="hidden">Hrát znovu</button>
+    </div>
+
+    <div id="gameOver" class="hidden">
+        <h2>Hra skončila!</h2>
+        <div id="finalPlayerName"></div>
+        <button id="playAgainBtn">Hrát znovu</button>
+        <h3>Výsledky</h3>
+        <table id="results">
+            <thead>
+                <tr>
+                    <th>Jméno</th>
+                    <th>Čas</th>
+                    <th>Datum</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script src="pexeso.js"></script>
+</body>
+</html>
