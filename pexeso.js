@@ -1,167 +1,165 @@
-document.getElementById('startGameBtn').addEventListener('click', startGame);
-document.getElementById('playAgainBtn').addEventListener('click', resetGame);
+class MemoryGame {
+    constructor(playerName) {
+        this.playerName = playerName;
+        this.matchedPairs = 0;
+        this.flippedCards = [];
+        this.totalPairs = 0;
+        this.gameStartTime = null;
+        this.timerInterval = null;
+        this.images = ['Obr/09.jpg', 'Obr/10.jpg', 'Obr/11.jpg','Obr/11.jpg','Obr/04.jpg','Obr/05.jpg','Obr/06.jpg','Obr/07.jpg','Obr/08.jpg']  }
 
-let playerName = '';
-let gameStartTime;
-let flippedCards = [];
-let matchedPairs = 0;
-const totalPairs = 8;
-
-const imageFiles = [
-    '01.jpg', '02.jpg', '03.jpg', '04.jpg', '05.jpg', '06.jpg', '07.jpg', '08.jpg', '09.jpg', '10.jpg'
-];
-
-function startGame() {
-    playerName = document.getElementById('playerName').value.trim();
-    if (playerName === '') {
-        alert('Prosím, zadejte své jméno!');
-        return;
+    startGame() {
+        if (!this.playerName) {
+            alert('Prosím, zadejte své jméno!');
+            return;
+        }
+        document.getElementById('menu').style.display = 'none';
+        document.getElementById('game').style.display = 'block';
+        this.restartGame();
     }
-    document.getElementById('playerDisplay').textContent = `Hráč: ${playerName}`;
-    document.getElementById('menu').classList.add('hidden');
-    document.getElementById('game').classList.remove('hidden');
-    initializeGameBoard();
-    gameStartTime = Date.now();
-    document.getElementById('time').textContent = `Čas: 0:00`;
-}
 
-function gameOver() {
-    const gameTime = (Date.now() - gameStartTime) / 1000;
-    document.getElementById('finalPlayerName').textContent = `Hráč: ${playerName}`;
-    document.getElementById('game').classList.add('hidden');
-    document.getElementById('gameOver').classList.remove('hidden');
+    restartGame() {
+        this.matchedPairs = 0;
+        this.flippedCards = [];
+        document.getElementById('score').textContent = 0;
+        document.getElementById('time').textContent = 'Čas: 0:00';
+        
+        const gameBoard = document.getElementById('board');
+        gameBoard.innerHTML = '';
+        
+        const cards = [...this.images, ...this.images];
+        cards.sort(() => Math.random() - 0.5);
+        this.totalPairs = cards.length / 2;
+        
+        cards.forEach(image => gameBoard.appendChild(this.createCard(image)));
+        
+        this.gameStartTime = Date.now();
+        this.startTimer();
+        
+        document.getElementById('gameOver').style.display = 'none';
+        document.getElementById('restart').style.display = 'none';
+    }
 
-    const results = JSON.parse(localStorage.getItem('results')) || [];
-    const currentDate = new Date().toLocaleString();
-    results.push({ name: playerName, time: gameTime, date: currentDate });
-    results.sort((a, b) => a.time - b.time);
-    localStorage.setItem('results', JSON.stringify(results));
+    startTimer() {
+        clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+            const elapsedTime = Math.floor((Date.now() - this.gameStartTime) / 1000);
+            const minutes = Math.floor(elapsedTime / 60);
+            const seconds = elapsedTime % 60;
+            document.getElementById('time').textContent = `Čas: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }, 1000);
+    }
 
-    displayResults();
-}
+    createCard(imageSrc) {
+        const cardElement = document.createElement('div');
+        cardElement.classList.add('card');
+        
+        const cardFront = document.createElement('div');
+        cardFront.classList.add('card-front');
+        const frontImage = document.createElement('img');
+        frontImage.src = imageSrc;
+        cardFront.appendChild(frontImage);
+        
+        const cardBack = document.createElement('div');
+        cardBack.classList.add('card-back');
+        const backImage = document.createElement('img');
+        backImage.src = 'Obr/rub.png';
+        cardBack.appendChild(backImage);
+        
+        cardElement.appendChild(cardFront);
+        cardElement.appendChild(cardBack);
+        cardElement.addEventListener('click', () => this.flipCard(cardElement));
+        
+        return cardElement;
+    }
 
-function resetGame() {
-    document.getElementById('menu').classList.remove('hidden');
-    document.getElementById('gameOver').classList.add('hidden');
-    document.getElementById('playerName').value = '';
-    document.getElementById('playerDisplay').textContent = '';
-    document.getElementById('finalPlayerName').textContent = '';
-    flippedCards = [];
-    matchedPairs = 0;
-    document.getElementById('time').textContent = `Čas: 0:00`;
-}
+    flipCard(cardElement) {
+        if (this.flippedCards.length === 2 || cardElement.classList.contains('flipped')) return;
+        
+        cardElement.classList.add('flipped');
+        this.flippedCards.push(cardElement);
+        
+        if (this.flippedCards.length === 2) {
+            this.checkMatch();
+        }
+    }
 
-function initializeGameBoard() {
-    const board = document.getElementById('board');
-    board.innerHTML = '';
-    const cards = generateCards();
-    cards.forEach(card => {
-        board.appendChild(card);
-    });
-}
-
-function generateCards() {
-    const cardValues = imageFiles.slice(0, Math.min(totalPairs, imageFiles.length)).map(file => `Obr/${file}`);
-    const cards = [];
-    cardValues.forEach(value => {
-        const card1 = createCard(value);
-        const card2 = createCard(value);
-        cards.push(card1, card2);
-    });
-    return shuffle(cards);
-}
-
-function createCard(imageSrc) {
-    const cardElement = document.createElement('div');
-    cardElement.classList.add('card');
-
-    const cardInner = document.createElement('div');
-    cardInner.classList.add('card-inner');
-
-    const cardBack = document.createElement('div');
-    cardBack.classList.add('card-back');
-    const backImage = document.createElement('img');
-    backImage.src = 'rub.png';
-    cardBack.appendChild(backImage);
-
-    const cardFront = document.createElement('div');
-    cardFront.classList.add('card-front');
-    const frontImage = document.createElement('img');
-    frontImage.src = imageSrc;
-    cardFront.appendChild(frontImage);
-
-    cardInner.appendChild(cardBack);
-    cardInner.appendChild(cardFront);
-    cardElement.appendChild(cardInner);
-
-    cardElement.addEventListener('click', () => flipCard(cardElement));
-
-    return cardElement;
-}
-
-function flipCard(cardElement) {
-    if (flippedCards.length === 2 || cardElement.querySelector('.card-inner').classList.contains('flipped')) return;
-
-    cardElement.querySelector('.card-inner').classList.add('flipped');
-    flippedCards.push(cardElement);
-
-    if (flippedCards.length === 2) {
-        const [firstCard, secondCard] = flippedCards;
-
+    checkMatch() {
+        const [firstCard, secondCard] = this.flippedCards;
         if (firstCard.querySelector('.card-front img').src === secondCard.querySelector('.card-front img').src) {
-            matchedPairs++;
-            document.getElementById('score').textContent = `Skóre: ${matchedPairs}`;
-            flippedCards = [];
-            if (matchedPairs === totalPairs) {
-                gameOver();
+            this.matchedPairs++;
+            document.getElementById('score').textContent = this.matchedPairs;
+            this.flippedCards = [];
+            if (this.matchedPairs === this.totalPairs) {
+                this.gameOver();
             }
         } else {
             setTimeout(() => {
-                firstCard.querySelector('.card-inner').classList.remove('flipped');
-                secondCard.querySelector('.card-inner').classList.remove('flipped');
-                flippedCards = [];
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                this.flippedCards = [];
             }, 1000);
         }
     }
-}
 
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
+    gameOver() {
+        clearInterval(this.timerInterval);
+        const gameTime = (Date.now() - this.gameStartTime) / 1000;
+        const gameDate = new Date().toLocaleString();
+        document.getElementById('gameOver').style.display = 'block';
+        document.getElementById('restart').style.display = 'inline-block';
+        
+        const results = JSON.parse(localStorage.getItem('results')) || [];
+        results.push({ name: this.playerName, time: gameTime, date: gameDate });
+        results.sort((a, b) => a.time - b.time);
+        localStorage.setItem('results', JSON.stringify(results));
+        
+        this.displayResults();
     }
-    return array;
+
+    displayResults() {
+        const results = JSON.parse(localStorage.getItem('results')) || [];
+        const resultsTable = document.getElementById('results');
+        resultsTable.innerHTML = '';
+        
+        const topResults = results.slice(0, 3);
+        const fragment = document.createDocumentFragment();
+        
+        topResults.forEach(result => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${result.name}</td><td>${result.time.toFixed(2)} s</td><td>${result.date}</td>`;
+            fragment.appendChild(row);
+        });
+        
+        resultsTable.appendChild(fragment);
+    }
 }
 
-function displayResults() {
-    const results = JSON.parse(localStorage.getItem('results')) || [];
-    const resultsTable = document.getElementById('results');
-    resultsTable.innerHTML = '';
+// Spuštění hry
+let game;
+document.getElementById('startGameBtn').addEventListener('click', () => {
+    const playerName = document.getElementById('playerName').value.trim();
+    game = new MemoryGame(playerName);
+    game.startGame();
+});
 
-    const topResults = results.slice(0, 3);
-    const fragment = document.createDocumentFragment();
+document.getElementById('restart').addEventListener('click', () => {
+    game.restartGame();
+});
 
-    topResults.forEach(result => {
-        const row = document.createElement('tr');
-        const nameCell = document.createElement('td');
-        const timeCell = document.createElement('td');
-        const dateCell = document.createElement('td');
-
-        nameCell.textContent = result.name;
-        const time = parseFloat(result.time);
-        timeCell.textContent = isNaN(time) ? 'Neplatný čas' : time.toFixed(2) + ' s';
-        dateCell.textContent = result.date;
-
-        row.appendChild(nameCell);
-        row.appendChild(timeCell);
-        row.appendChild(dateCell);
-
-        fragment.appendChild(row);
-    });
-
-    resultsTable.appendChild(fragment);
-}
+document.getElementById('clearResultsBtn').addEventListener('click', () => {
+    localStorage.removeItem('results');
+    if (game) {
+        game.displayResults();
+    } else {
+        const tempGame = new MemoryGame('');
+        tempGame.displayResults();
+    }
+});
 
 window.onload = function () {
-    displayResults();
+    if (document.getElementById('results')) {
+        const tempGame = new MemoryGame('');
+        tempGame.displayResults();
+    }
 };

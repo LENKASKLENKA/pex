@@ -1,0 +1,148 @@
+/* Obecné styly pro stránku */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+
+/* Tlačítko Hraj */
+#startGameBtn {
+    font-size: 24px;
+    padding: 15px 30px;
+    background-color: #FF7F00;
+    color: white;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+#startGameBtn:hover {
+    background-color: #FF6500;
+}
+#clearResultsBtn {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+#clearResultsBtn:hover {
+    background-color: darkorange;
+}
+/* Menu */
+#menu {
+    text-align: center;
+}
+
+/* Panel se skóre a časovačem */
+#infoPanel {
+    margin-bottom: 20px;
+    font-size: 18px;
+}
+
+/* Hlavní herní div */
+#game {
+    display: none;
+    text-align: center;
+    position: relative;
+}
+
+/* Tlačítko restart nahoře */
+#restart {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #FF7F00;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#restart:hover {
+    background-color: #FF6500;
+}
+
+/* Herna (karty) */
+#board {
+    display: grid;
+    grid-template-columns: repeat(6, 150px);
+    grid-gap: 12px;
+    justify-content: center;
+    align-items: center;
+    max-width: 650px;
+    margin: 0 auto;
+}
+
+/* Každá karta */
+.card {
+    width: 150px;
+    height: 150px;
+    cursor: pointer;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+}
+
+/* Rub a líc karty */
+.card .card-front, .card .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+}
+
+/* Otočení karty při kliknutí */
+.card .card-front {
+    transform: rotateY(180deg);
+}
+
+.card.flipped .card-front {
+    transform: rotateY(0deg);
+}
+
+.card.flipped .card-back {
+    transform: rotateY(180deg);
+}
+
+.card .card-back {
+    transform: rotateY(0deg);
+}
+
+/* Skrytí herní části před začátkem */
+.hidden {
+    display: none;
+}
+
+/* Když je hra dokončena */
+#gameOver {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+#playerName {
+    margin-top: 20px; /* Adjust the value as needed */
+}
+
+#results li {
+    margin-bottom: 10px; /* Adjust the value as needed */
+}
+
+#results li span.time {
+    margin-right: 10px; /* Adjust the value as needed */
+}
